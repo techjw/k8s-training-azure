@@ -1,0 +1,10 @@
+- hosts: localhost
+  become: true
+  tasks:
+  - template:
+      src: /home/ubuntu/kismatic-cluster.yaml.j2
+      dest: "/home/{{ item.user }}/kismatic-cluster.yaml"
+      owner: "{{ item.user }}"
+      group: training
+      mode: 0644
+    with_items: "{{ users }}"

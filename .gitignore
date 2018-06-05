@@ -1,0 +1,8 @@
+terraform/terraform.tfvars
+terraform/terraform.tfstate
+terraform/.terraform
+user-terraform/terraform.tfvars
+user-terraform/terraform.tfstate
+user-terraform/.terraform
+ssh/
+generated/

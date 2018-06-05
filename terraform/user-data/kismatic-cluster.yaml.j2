@@ -1,0 +1,148 @@
+cluster:
+  name: "k8s-{{ item.user }}"
+  version: v1.10.2
+  disable_package_installation: false
+  disconnected_installation: false
+
+  networking:
+    pod_cidr_block: 172.16.0.0/16
+    service_cidr_block: 172.20.0.0/16
+    update_hosts_files: true
+    http_proxy: ""
+    https_proxy: ""
+    no_proxy: ""
+
+  certificates:
+    expiry: 17520h
+    ca_expiry: 17520h
+
+  ssh:
+    user: ubuntu
+    ssh_key: /home/{{ item.user }}/kismatic.pem
+    ssh_port: 22
+
+  kube_apiserver:
+    option_overrides: {}
+  kube_controller_manager:
+    option_overrides: {}
+  kube_scheduler:
+    option_overrides: {}
+  kube_proxy:
+    option_overrides: {}
+  kubelet:
+    option_overrides:
+      max-pods: 50
+      kube-reserved: "cpu=500m,memory=500Mi"
+      system-reserved: "cpu=500m,memory=500Mi"
+
+  cloud_provider:
+    # Options: aws|azure|cloudstack|fake|gce|mesos|openstack|ovirt|photon|rackspace|vsphere
+    # Leave config empty if provider does not require a path to a config file.
+    # provider: "aws"
+    # config: "/dir/aws.conf"
+
+docker:
+  disable: false
+  logs:
+    driver: json-file
+    opts:
+      max-file: "1"
+      max-size: 50m
+  storage:
+    driver: "overlay2"
+    opts: {}
+
+docker_registry:
+  server: ""
+  CA: ""
+  username: ""
+  password: ""
+
+additional_files: []
+
+add_ons:
+  cni:
+    disable: false
+    provider: weave
+
+  dns:
+    disable: false
+    provider: kubedns
+    options:
+      replicas: 2
+
+  heapster:
+    disable: false
+    options:
+      heapster:
+        replicas: 2
+        service_type: ClusterIP
+        sink: influxdb:http://heapster-influxdb.kube-system.svc:8086
+      influxdb:
+        pvc_name: ""
+
+  metrics_server:
+    disable: true
+
+  dashboard:
+    disable: false
+
+  package_manager:
+    disable: false
+    provider: helm
+    options:
+      helm:
+        namespace: kube-system
+
+  rescheduler:
+    disable: true
+
+etcd:
+  expected_count: 1
+  nodes:
+  - host: "{{ item.nodes.master.name }}"
+    ip: "{{ item.nodes.master.ip }}"
+    internalip: "{{ item.nodes.master.internalip }}"
+
+master:
+  expected_count: 1
+  load_balanced_fqdn: "{{ item.nodes.master.fqdn }}"
+  load_balanced_short_name: "{{ item.nodes.master.internalip }}"
+  nodes:
+  - host: "{{ item.nodes.master.name }}"
+    ip: "{{ item.nodes.master.ip }}"
+    internalip: "{{ item.nodes.master.internalip }}"
+    labels:
+      component: "master"
+
+worker:
+  expected_count: 2
+  nodes:
+  - host: "{{ item.nodes.worker1.name }}"
+    ip: "{{ item.nodes.worker1.ip }}"
+    internalip: "{{ item.nodes.worker1.internalip }}"
+    labels:
+      component: "worker"
+  - host: "{{ item.nodes.worker2.name }}"
+    ip: "{{ item.nodes.worker2.ip }}"
+    internalip: "{{ item.nodes.worker2.internalip }}"
+    labels:
+      component: "worker"
+      node-role.kubernetes.io/worker: ""
+
+ingress:
+  expected_count: 1
+  nodes:
+  - host: "{{ item.nodes.ingress.name }}"
+    ip: "{{ item.nodes.ingress.ip }}"
+    internalip: "{{ item.nodes.ingress.internalip }}"
+    labels:
+      component: "ingress"
+      node-role.kubernetes.io/ingress: ""
+
+storage:
+  expected_count: 0
+  nodes: []
+
+nfs:
+  nfs_volume: []
