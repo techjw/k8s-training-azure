@@ -128,7 +128,6 @@ worker:
     internalip: "{{ item.nodes.worker2.internalip }}"
     labels:
       component: "worker"
-      node-role.kubernetes.io/worker: ""
 
 ingress:
   expected_count: 1
